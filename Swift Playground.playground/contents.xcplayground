@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<playground target-platform="ios" requires-full-environment="false" version="6.0">
+    <pages>
+        <page name="Swift 基础知识"/>
+        <page name="基本运算符"/>
+        <page name="字符串和字符"/>
+        <page name="集合类型"/>
+    </pages>
+</playground>
