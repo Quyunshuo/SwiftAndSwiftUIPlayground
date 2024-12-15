@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<playground target-platform="ios" requires-full-environment="false" version="6.0">
+<playground version="6.0" target-platform="ios" requires-full-environment="false">
     <pages>
         <page name="Swift 基础知识"/>
         <page name="基本运算符"/>
@@ -7,5 +7,6 @@
         <page name="集合类型"/>
         <page name="控制流"/>
         <page name="函数"/>
+        <page name="闭包"/>
     </pages>
 </playground>
