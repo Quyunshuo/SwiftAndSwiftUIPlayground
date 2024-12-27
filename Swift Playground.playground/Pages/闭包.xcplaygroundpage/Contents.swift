@@ -59,4 +59,40 @@ reversedNames = names.sorted() { $0 > $1 }
 //} onFailure: {
 //    print("Couldn't download the next picture.")
 //}
-// 值捕获
+
+// 闭包是引用类型    函数和闭包是 引用类型
+// 每当你将函数或闭包赋值给一个常量或变量时，你实际上是在将该常量或变量设置为对函数或闭包的 引用
+
+// 逃逸闭包    逃逸闭包的关键字：@escaping
+/*
+ 1. 什么是逃逸闭包？
+ 当一个闭包在函数返回后仍然存活并可能被调用时，就称为逃逸闭包。
+ 以下情况会导致闭包逃逸：
+     •将闭包保存到函数外部的变量或属性中。
+     •将闭包作为参数传递给其他异步操作，例如异步回调函数。
+ 2. 非逃逸闭包（默认情况）
+ 在 Swift 中，函数的参数闭包默认是非逃逸的。这意味着闭包只能在函数内部调用，函数执行完后闭包会被释放。
+ */
+var completionHandlers: [() -> Void] = []    // 外部变量 用于存储闭包
+func addCompletionHandler(_ handler: @escaping () -> Void) {
+    completionHandlers.append(handler) // 闭包逃逸出函数作用域 被添加到 completionHandlers 中
+}
+addCompletionHandler { print("This is a completion handler.") }
+
+// 自动闭包    
+// 在函数参数类型前加上 @autoclosure 标记，表示该参数为一个自动闭包。例如：
+func log(message: @autoclosure () -> String) {
+    print(message()) // 调用闭包
+}
+log(message: "Hello, World!") // 自动将 "Hello, World!" 封装为闭包
+// 示例
+func performTask(condition: Bool, action: @autoclosure () -> String) {
+    if condition {
+        print(action()) // 只有满足条件时，才执行闭包
+    } else {
+        print("Condition not met")
+    }
+}
+performTask(condition: true, action: "Task Executed")  // 输出：Task Executed
+performTask(condition: false, action: "Task Executed") // 输出：Condition not met
+// 优点："Task Executed" 的字符串拼接等操作只有在条件满足时才会执行，避免不必要的性能开销。
