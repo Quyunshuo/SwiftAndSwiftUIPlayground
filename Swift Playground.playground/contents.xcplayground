@@ -11,5 +11,6 @@
         <page name="枚举"/>
         <page name="结构体和类"/>
         <page name="方法"/>
+        <page name="属性"/>
     </pages>
 </playground>
