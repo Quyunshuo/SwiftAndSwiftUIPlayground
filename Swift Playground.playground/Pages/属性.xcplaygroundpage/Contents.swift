@@ -150,36 +150,158 @@ stepCounter.totalSteps = 896
 // 增加了 536 步
 
 // 属性包装器
+/*
+ 属性包装器在管理属性存储方式的代码和定义属性的代码之间添加了一层分离。
+ 例如，如果有一些属性需要提供线程安全检查或将其底层数据存储在数据库中，那么你必须在每个属性上编写这些代码。
+ 而使用属性包装器时，只需在定义包装器时编写一次管理代码，然后通过将其应用于多个属性来重复使用这些管理代码。
+ 要定义属性包装器，需要创建一个结构体、枚举或类，并定义一个 wrappedValue 属性
+ */
+@propertyWrapper
+struct TwelveOrLess {
+    private var number = 0
+    var wrappedValue: Int {
+        get { return number }
+        set { number = min(newValue, 12) }
+    }
+}
+// 可以通过在属性前作为特性写上包装器的名称来应用包装器
+struct SmallRectangle {
+    @TwelveOrLess var height: Int
+    @TwelveOrLess var width: Int
+}
+var rectangle = SmallRectangle()
+print(rectangle.height)    // 打印 "0"
+rectangle.height = 10
+print(rectangle.height)    // 打印 "10"
+rectangle.height = 24
+print(rectangle.height)    // 打印 "12"
 
+// 设置被包装属性的初始值
+@propertyWrapper
+struct SmallNumber {
+    private var maximum: Int
+    private var number: Int
 
+    var wrappedValue: Int {
+        get { return number }
+        set { number = min(newValue, maximum) }
+    }
 
+    init() {
+        maximum = 12
+        number = 0
+    }
+    init(wrappedValue: Int) {
+        maximum = 12
+        number = min(wrappedValue, maximum)
+    }
+    init(wrappedValue: Int, maximum: Int) {
+        self.maximum = maximum
+        number = min(wrappedValue, maximum)
+    }
+}
+struct ZeroRectangle {
+    @SmallNumber var height: Int
+    @SmallNumber var width: Int
+}
+var zeroRectangle = ZeroRectangle()
+print(zeroRectangle.height, zeroRectangle.width)    // 打印 "0 0"
 
+struct UnitRectangle {
+    @SmallNumber var height: Int = 1
+    @SmallNumber var width: Int = 1
+}
+var unitRectangle = UnitRectangle()
+print(unitRectangle.height, unitRectangle.width)    // 打印 "1 1"
 
+struct NarrowRectangle {
+    @SmallNumber(wrappedValue: 2, maximum: 5) var height: Int
+    @SmallNumber(wrappedValue: 3, maximum: 4) var width: Int
+}
+var narrowRectangle = NarrowRectangle()
+print(narrowRectangle.height, narrowRectangle.width)    // 打印 "2 3"
+narrowRectangle.height = 100
+narrowRectangle.width = 100
+print(narrowRectangle.height, narrowRectangle.width)    // 打印 "5 4"
 
+struct MixedRectangle {
+    @SmallNumber var height: Int = 1
+    @SmallNumber(maximum: 9) var width: Int = 2
+}
+var mixedRectangle = MixedRectangle()
+print(mixedRectangle.height)    // 打印 "1"
+mixedRectangle.height = 20
+print(mixedRectangle.height)    // 打印 "12"
 
+// 从属性包装器中呈现一个值    一个包装器可以通过实现 projectedValue 属性来提供被呈现值
+@propertyWrapper
+struct SmallNumber2 {
+    private var number: Int
+    private(set) var projectedValue: Bool    // 被呈现值
+    var wrappedValue: Int {
+        get { return number }
+        set {
+            if newValue > 12 {
+                number = 12
+                projectedValue = true
+            } else {
+                number = newValue
+                projectedValue = false
+            }
+        }
+    }
+    init() {
+        self.number = 0
+        self.projectedValue = false
+    }
+}
+struct SomeStructure {
+    @SmallNumber2 var someNumber: Int
+}
+var someStructure = SomeStructure()
+someStructure.someNumber = 4
+print(someStructure.$someNumber)    // 打印 "false"
+someStructure.someNumber = 55
+print(someStructure.$someNumber)    // 打印 "true"
 
+// 全局变量和局部变量
+/*
+ 全局常量和变量总是以类似于 doc:Properties#Lazy-Stored-Properties 的方式被延迟计算。与延迟存储属性不同，全局常量和变量不需要用 lazy 修饰符标记。
+ 局部常量和变量从不延迟计算。
+ */
 
+// 类型属性    静态
+/*
+ 与存储实例属性不同，存储类型属性必须始终指定默认值。这是因为类型本身没有构造器，无法在初始化时为存储类型属性赋值。
+ 存储类型属性在第一次访问时会被延迟初始化。即使在多个线程同时访问时，也保证只会初始化一次，并且不需要用 lazy 修饰符标记。
+ */
 
+// 类型属性语法
+struct SomeStructure2 {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 1
+    }
+}
+enum SomeEnumeration {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 6
+    }
+}
+class SomeClass {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 27
+    }
+    class var overrideableComputedTypeProperty: Int {
+        return 107
+    }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// 获取和设置类型属性的值
+print(SomeStructure2.storedTypeProperty)       // 打印 "Some value."
+SomeStructure2.storedTypeProperty = "Another value."
+print(SomeStructure2.storedTypeProperty)       // 打印 "Another value."
+print(SomeEnumeration.computedTypeProperty)    // 打印 "6"
+print(SomeClass.computedTypeProperty)          // 打印 "27"
