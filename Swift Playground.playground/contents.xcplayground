@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<playground requires-full-environment="false" version="6.0" target-platform="ios">
+<playground version="6.0" requires-full-environment="false" target-platform="ios">
     <pages>
         <page name="Swift 基础知识"/>
         <page name="基本运算符"/>
@@ -18,5 +18,6 @@
         <page name="类型转换"/>
         <page name="嵌套类型"/>
         <page name="扩展"/>
+        <page name="访问控制"/>
     </pages>
 </playground>
