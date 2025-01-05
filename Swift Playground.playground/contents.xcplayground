@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<playground target-platform="ios" requires-full-environment="false" version="6.0">
+<playground target-platform="ios" version="6.0" requires-full-environment="false">
     <pages>
         <page name="Swift 基础知识"/>
         <page name="基本运算符"/>
@@ -21,5 +21,8 @@
         <page name="访问控制"/>
         <page name="内存安全"/>
         <page name="协议"/>
+        <page name="宏"/>
+        <page name="构造过程"/>
+        <page name="析构过程"/>
     </pages>
 </playground>
